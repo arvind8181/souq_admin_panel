@@ -201,9 +201,55 @@ export const AllVendorHeaders = (
   },
   {
     key: 'deleted',
-    label: 'Deleted',
+    label: 'De-Activated',
     render: (row) => (row.user?.deleted ? 'Yes' : 'No'),
   },
+  // {
+  //   key: 'actions',
+  //   label: 'Actions',
+  //   render: (row) => (
+  //     <div className="d-flex gap-2">
+  //       <CTooltip content="View Vendor Details" placement="top">
+  //         <CButton
+  //           color="info"
+  //           size="sm"
+  //           onClick={() => {
+  //             setSelectedVendor(row)
+  //             setVisible(true)
+  //           }}
+  //         >
+  //           <FaEye />
+  //         </CButton>
+  //       </CTooltip>
+
+  //       <CTooltip
+  //         content={row.user?.deleted ? 'Activate Vendor' : 'Deactivate Vendor'}
+  //         placement="top"
+  //       >
+  //         <CButton
+  //           color={row.user?.deleted ? 'success' : 'danger'}
+  //           size="sm"
+  //           onClick={() => onToggleDelete(row)}
+  //         >
+  //           <FaUserSlash />
+  //         </CButton>
+  //       </CTooltip>
+
+  //       <CTooltip
+  //         content={row.status === 'Approved' ? 'Reject Vendor' : 'Approve Vendor'}
+  //         placement="top"
+  //       >
+  //         <CButton
+  //           color={row.status === 'Approved' ? 'warning' : 'success'}
+  //           size="sm"
+  //           onClick={() => onToggleStatus(row)}
+  //         >
+  //           {row.status === 'Approved' ? <FaTimesCircle /> : <FaCheckCircle />}
+  //         </CButton>
+  //       </CTooltip>
+  //     </div>
+  //   ),
+  // },
   {
     key: 'actions',
     label: 'Actions',
@@ -221,20 +267,20 @@ export const AllVendorHeaders = (
             <FaEye />
           </CButton>
         </CTooltip>
-
-        <CTooltip
-          content={row.user?.deleted ? 'Activate Vendor' : 'Deactivate Vendor'}
-          placement="top"
-        >
-          <CButton
-            color={row.user?.deleted ? 'success' : 'danger'}
-            size="sm"
-            onClick={() => onToggleDelete(row)}
+        {row.status !== 'Rejected' && (
+          <CTooltip
+            content={row.user?.deleted ? 'Activate Vendor' : 'Deactivate Vendor'}
+            placement="top"
           >
-            <FaUserSlash />
-          </CButton>
-        </CTooltip>
-
+            <CButton
+              color={row.user?.deleted ? 'success' : 'danger'}
+              size="sm"
+              onClick={() => onToggleDelete(row)}
+            >
+              <FaUserSlash />
+            </CButton>
+          </CTooltip>
+        )}
         <CTooltip
           content={row.status === 'Approved' ? 'Reject Vendor' : 'Approve Vendor'}
           placement="top"

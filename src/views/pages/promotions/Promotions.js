@@ -16,14 +16,15 @@ import {
   CTableDataCell,
   CFormInput,
   CInputGroup,
-  CInputGroupText
+  CInputGroupText,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilSearch } from '@coreui/icons'
 import DataTable from '../../../components/datatable/datatable'
 import Loader from '../../../components/loader/Loader'
-import { fetchPromotions,updatePromotionStatus } from '../../../redux/slice/promotion'
+import { fetchPromotions, updatePromotionStatus } from '../../../redux/slice/promotion'
 import { PromotionHeaders } from '../../../utils/header'
+import ConfirmActionModal from './ConfirmActionModal'
 
 const Promotions = () => {
   const dispatch = useDispatch()
@@ -45,20 +46,78 @@ const Promotions = () => {
   const [typeSearch, setTypeSearch] = useState('')
   const [codeSearch, setCodeSearch] = useState('')
   const [isActiveSearch, setIsActiveSearch] = useState('')
+  const [confirmModal, setConfirmModal] = useState(false)
+  const [pendingAction, setPendingAction] = useState(null)
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: '',
+    message: '',
+    confirmColor: 'danger',
+  })
 
   const handleView = (promotion) => {
     setSelectedPromotion(promotion)
     setShowModal(true)
   }
-  const handleStatusChange = async (updatePayload) => {
-    await dispatch(updatePromotionStatus(updatePayload));
-    dispatch(fetchPromotions({
-      page: currentPage,
-      pageSize,
-      sortKey,
-      sortDirection
-    }));
-  };
+  // const handleStatusChange = async (updatePayload) => {
+  //   await dispatch(updatePromotionStatus(updatePayload));
+  //   dispatch(fetchPromotions({
+  //     page: currentPage,
+  //     pageSize,
+  //     sortKey,
+  //     sortDirection
+  //   }));
+  // };
+  const handleStatusChange = (payload) => {
+    let title = ''
+    let message = null
+    let confirmColor = 'danger'
+
+    // DELETE / RESTORE
+    if ('isDeleted' in payload) {
+      if (payload.isDeleted) {
+        title = 'Delete Promotion'
+        message = (
+          <>
+            Are you sure you want to <strong>delete</strong> this promotion?
+            <br />
+            <small className="text-muted">You can restore this promotion later.</small>
+          </>
+        )
+      } else {
+        title = 'Restore Promotion'
+        message = 'Are you sure you want to restore this promotion?'
+        confirmColor = 'success'
+      }
+    }
+
+    // ACTIVATE / DEACTIVATE
+    if ('isActive' in payload) {
+      title = payload.isActive ? 'Activate Promotion' : 'Deactivate Promotion'
+      message = `Are you sure you want to ${payload.isActive ? 'activate' : 'deactivate'} this promotion?`
+      confirmColor = payload.isActive ? 'success' : 'warning'
+    }
+
+    setPendingAction(payload)
+    setConfirmConfig({ title, message, confirmColor })
+    setConfirmModal(true)
+  }
+  const confirmAction = async () => {
+    if (!pendingAction) return
+
+    await dispatch(updatePromotionStatus(pendingAction))
+
+    dispatch(
+      fetchPromotions({
+        page: currentPage,
+        pageSize,
+        sortKey,
+        sortDirection,
+      }),
+    )
+
+    setConfirmModal(false)
+    setPendingAction(null)
+  }
 
   const fetch = useCallback(() => {
     dispatch(
@@ -70,10 +129,20 @@ const Promotions = () => {
         title: titleSearch,
         type: typeSearch,
         promotionCode: codeSearch,
-        isActive: isActiveSearch, // NEW FILTER
+        isActive: isActiveSearch,
       }),
     )
-  }, [dispatch, currentPage, pageSize, sortKey, sortDirection, titleSearch, typeSearch, codeSearch, isActiveSearch])
+  }, [
+    dispatch,
+    currentPage,
+    pageSize,
+    sortKey,
+    sortDirection,
+    titleSearch,
+    typeSearch,
+    codeSearch,
+    isActiveSearch,
+  ])
 
   useEffect(() => {
     fetch()
@@ -251,6 +320,15 @@ const Promotions = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+      <ConfirmActionModal
+        visible={confirmModal}
+        onClose={() => setConfirmModal(false)}
+        onConfirm={confirmAction}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmColor={confirmConfig.confirmColor}
+        confirmText="Yes, Confirm"
+      />
     </div>
   )
 }

@@ -3,28 +3,70 @@ import HttpClient from '../../helper/http-client'
 import { toast } from 'react-toastify';
 
 // Fetch promotions
+// export const fetchPromotions = createAsyncThunk(
+//   'promotion/fetchPromotions',
+//   async ({ page = 1, pageSize = 10, sortKey = 'createdAt', sortDirection = 'desc', isActive }, { rejectWithValue }) => {
+//     try {
+//       const params = new URLSearchParams({
+//         page,
+//         limit: pageSize,
+//         sortKey,
+//         sortDirection,
+//       });
+
+//       if (isActive !== undefined && isActive !== null && isActive !== '') {
+//         params.append('isActive', isActive);
+//       }
+
+//       const response = await HttpClient.get(`/promotion/promotions/admin?${params.toString()}`);
+//       return response.data.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data ?? { message: err.message });
+//     }
+//   }
+// );
+
 export const fetchPromotions = createAsyncThunk(
   'promotion/fetchPromotions',
-  async ({ page = 1, pageSize = 10, sortKey = 'createdAt', sortDirection = 'desc', isActive }, { rejectWithValue }) => {
+  async (
+    {
+      page = 1,
+      pageSize = 10,
+      sortKey,
+      sortDirection,
+      title,
+      type,
+      promotionCode,
+      isActive,
+    },
+    { rejectWithValue }
+  ) => {
     try {
       const params = new URLSearchParams({
         page,
         limit: pageSize,
         sortKey,
         sortDirection,
-      });
+      })
 
-      if (isActive !== undefined && isActive !== null && isActive !== '') {
-        params.append('isActive', isActive);
+      if (title) params.append('title', title)
+      if (type) params.append('type', type)
+      if (promotionCode) params.append('promotionCode', promotionCode)
+      if (isActive !== '' && isActive !== undefined) {
+        params.append('isActive', isActive)
       }
 
-      const response = await HttpClient.get(`/promotion/promotions/admin?${params.toString()}`);
-      return response.data.data;
+      const response = await HttpClient.get(
+        `/promotion/promotions/admin?${params.toString()}`
+      )
+
+      return response.data.data
     } catch (err) {
-      return rejectWithValue(err.response?.data ?? { message: err.message });
+      return rejectWithValue(err.response?.data ?? { message: err.message })
     }
   }
-);
+)
+
 
 
 
