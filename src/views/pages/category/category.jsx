@@ -153,7 +153,21 @@ const Category = () => {
                 onChange={(e) => setSearchText(e.target.value)}
               />
             </div>
-            <CButton color="primary" onClick={() => setVisibleModal(true)}>
+            {/* <CButton color="primary" onClick={() => setVisibleModal(true)}> */}
+            <CButton
+  color="primary"
+  onClick={() => {
+    setEditId(null)
+    setFormData({
+      category: '',
+      subCategory: '',
+      color: false,
+      commission: 0,
+    })
+    setVisibleModal(true)
+  }}
+>
+
               <CIcon icon={cilPlus} className="me-2" /> Add Category
             </CButton>
           </div>
@@ -173,7 +187,21 @@ const Category = () => {
       </CCard>
 
       {/* Add/Edit Modal */}
-      <CModal visible={visibleModal} onClose={() => setVisibleModal(false)}>
+      {/* <CModal visible={visibleModal} onClose={() => setVisibleModal(false)}> */}
+      <CModal
+  visible={visibleModal}
+  onClose={() => {
+    setVisibleModal(false)
+    setEditId(null)
+    setFormData({
+      category: '',
+      subCategory: '',
+      color: false,
+      commission: 0,
+    })
+  }}
+>
+
         <CModalHeader closeButton>{editId ? 'Edit Category' : 'Add Category'}</CModalHeader>
         <CModalBody>
           <CForm onSubmit={handleSubmit}>
